@@ -1,11 +1,22 @@
-import { alertRules } from "../alerts/alertRules";
-import { canTriggerAlert, markAlertTriggered } from "../alerts/alertState";
-import { countLogs } from "./alertQuery.service";
-
+import { getActiveAlertRules, markAlertTriggered } from "../repositories/alertRule.repo";
 import { getErrorTrends } from "./errorMetrics.service";
 
+function canTriggerAlert(rule: any) {
+  if (!rule.lastTriggeredAt) return true;
+
+  const last = new Date(rule.lastTriggeredAt).getTime();
+  const now = Date.now();
+
+  return (
+    now - last >
+    rule.cooldownMinutes * 60 * 1000
+  );
+}
+
 export async function evaluateAlerts() {
-  for (const rule of alertRules) {
+  const rules = await getActiveAlertRules();
+
+  for (const rule of rules) {
     const buckets = await getErrorTrends(
       rule.service,
       rule.windowMinutes
@@ -21,18 +32,13 @@ export async function evaluateAlerts() {
     );
 
     if (totalErrors >= rule.threshold) {
-      if (canTriggerAlert(rule.id, rule.cooldownMinutes)) {
-        triggerAlert(rule, totalErrors);
-        markAlertTriggered(rule.id);
+      if (canTriggerAlert(rule)) {
+        console.log(
+          `🚨 ALERT: ${rule.service} had ${totalErrors} errors in ${rule.windowMinutes} minutes`
+        );
+
+        await markAlertTriggered(rule.id);
       }
     }
   }
-}
-
-
-
-function triggerAlert(rule: any, count: number) {
-  console.error(
-    `🚨 ALERT: ${rule.service} has ${count} ${rule.level} logs in ${rule.windowMinutes} minutes`
-  );
 }

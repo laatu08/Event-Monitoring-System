@@ -6,14 +6,7 @@ export async function queryLogs(query: LogQuery) {
 
   const must: any[] = [];
 
-  if (service) {
-    must.push({ term: { service } });
-  }
-
-  if (level) {
-    must.push({ term: { level } });
-  }
-
+  // ✅ Exact match filters
   if (service) {
     must.push({ term: { "service.keyword": service } });
   }
@@ -22,25 +15,26 @@ export async function queryLogs(query: LogQuery) {
     must.push({ term: { "level.keyword": level } });
   }
 
+  // ✅ Time range
   if (from || to) {
     must.push({
       range: {
         timestamp: {
-          gte: from,
-          lte: to,
-        },
-      },
+          ...(from && { gte: from }),
+          ...(to && { lte: to })
+        }
+      }
     });
   }
 
   const result = await client.search({
-    index: "logs-*",
+    index: "app-logs-*", // ✅ FIXED
     from: (page - 1) * limit,
     size: limit,
     sort: [{ timestamp: { order: "desc" } }],
     query: {
-      bool: { must },
-    },
+      bool: { must }
+    }
   });
 
   return {
@@ -48,6 +42,7 @@ export async function queryLogs(query: LogQuery) {
       typeof result.hits.total === "number"
         ? result.hits.total
         : result.hits.total?.value || 0,
-    logs: result.hits.hits.map((hit) => hit._source),
+
+    logs: result.hits.hits.map((hit) => hit._source)
   };
 }

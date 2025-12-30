@@ -4,17 +4,29 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  CartesianGrid
+  ResponsiveContainer
 } from "recharts";
 
-export default function ErrorChart({ data }: { data: any[] }) {
+type Point = { time: string; count: number };
+
+export function ErrorChart({ data }: { data: Point[] }) {
   return (
-    <LineChart width={600} height={300} data={data}>
-      <CartesianGrid strokeDasharray="3 3" />
-      <XAxis dataKey="time" />
-      <YAxis />
-      <Tooltip />
-      <Line type="monotone" dataKey="count" stroke="#ef4444" />
-    </LineChart>
+    <div className="h-100 bg-white rounded shadow p-4">
+      <h3 className="text-lg font-semibold mb-4">Error Trend</h3>
+
+      <ResponsiveContainer width="100%" height="90%">
+        <LineChart data={data}>
+          <XAxis dataKey="time" hide />
+          <YAxis allowDecimals={false} />
+          <Tooltip />
+          <Line
+            type="monotone"
+            dataKey="count"
+            stroke="#ef4444"
+            strokeWidth={2}
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
   );
 }

@@ -2,26 +2,33 @@ import { alertRules } from "../alerts/alertRules";
 import { canTriggerAlert, markAlertTriggered } from "../alerts/alertState";
 import { countLogs } from "./alertQuery.service";
 
+import { getErrorTrends } from "./errorMetrics.service";
+
 export async function evaluateAlerts() {
   for (const rule of alertRules) {
-    const count = await countLogs(
+    const buckets = await getErrorTrends(
       rule.service,
-      rule.level,
       rule.windowMinutes
     );
 
-    console.log(
-      `[ALERT DEBUG] service=${rule.service}, level=${rule.level}, count=${count}`
+    const totalErrors = buckets.reduce(
+      (sum: any, b: { count: any; }) => sum + b.count,
+      0
     );
 
-    if (count >= rule.threshold) {
+    console.log(
+      `[ALERT DEBUG] service=${rule.service} totalErrors=${totalErrors}`
+    );
+
+    if (totalErrors >= rule.threshold) {
       if (canTriggerAlert(rule.id, rule.cooldownMinutes)) {
-        triggerAlert(rule, count);
+        triggerAlert(rule, totalErrors);
         markAlertTriggered(rule.id);
       }
     }
   }
 }
+
 
 
 function triggerAlert(rule: any, count: number) {

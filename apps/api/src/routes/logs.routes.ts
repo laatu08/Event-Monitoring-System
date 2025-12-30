@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { logSchema } from "../schemas/log.schema";
 import { logQueue } from "../lib/logQueue";
+import { getLogs } from "../controllers/logs.controller";
 
 const router = Router();
 
@@ -22,5 +23,9 @@ router.post("/", async (req, res) => {
 
   return res.status(202).json({ status: "queued" });
 });
+
+
+// query logs
+router.get("/", getLogs);
 
 export default router;

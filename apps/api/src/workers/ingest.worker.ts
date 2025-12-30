@@ -1,6 +1,7 @@
 import { Worker } from "bullmq";
 import redis from "../lib/redis";
 import { LOG_QUEUE_NAME } from "../lib/logQueue";
+import { storeLog } from "../services/logStorage.service";
 
 const worker = new Worker(
   LOG_QUEUE_NAME,
@@ -11,6 +12,9 @@ const worker = new Worker(
     console.log("🛠 Processing log:", log);
 
     // later: send to Elasticsearch
+    await storeLog(log);
+
+    console.log("📦 Stored log in Elasticsearch");
   },
   {
     connection: redis

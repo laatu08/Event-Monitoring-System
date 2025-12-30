@@ -1,9 +1,10 @@
 import { Router } from "express";
 import { logSchema } from "../schemas/log.schema";
+import { logQueue } from "../lib/logQueue";
 
 const router = Router();
 
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
   const parsed = logSchema.safeParse(req.body);
 
   if (!parsed.success) {
@@ -13,10 +14,13 @@ router.post("/", (req, res) => {
     });
   }
 
-  // TEMP: just print it
-  console.log("📥 Log received:", parsed.data);
+  // enqueue log (async)
+  await logQueue.add("ingest", parsed.data, {
+    removeOnComplete: true,
+    attempts: 3
+  });
 
-  return res.status(202).json({ status: "accepted" });
+  return res.status(202).json({ status: "queued" });
 });
 
 export default router;

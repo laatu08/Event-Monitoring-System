@@ -4,9 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn src/index.ts",
-    "build": "tsc",
-    "start": "node dist/index.js"
+      "dev": "ts-node-dev --respawn src/index.ts",
+      "worker": "ts-node-dev --respawn src/workers/ingest.worker.ts",
+      "build": "tsc",
+      "start": "node dist/index.js"
   },
   "keywords": [],
   "author": "",

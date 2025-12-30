@@ -4,6 +4,7 @@ import {
   markAlertTriggered,
 } from "../repositories/alertRule.repo";
 import { getErrorTrends } from "./errorMetrics.service";
+import { sendNotifications } from "./notification.service";
 
 function canTriggerAlert(rule: any) {
   if (!rule.lastTriggeredAt) return true;
@@ -40,6 +41,14 @@ export async function evaluateAlerts() {
           service: rule.service,
           errorCount: totalErrors,
           windowMinutes: rule.windowMinutes,
+        });
+
+        await sendNotifications({
+          type: "error_alert",
+          service: rule.service,
+          errorCount: totalErrors,
+          windowMinutes: rule.windowMinutes,
+          triggeredAt: new Date().toISOString(),
         });
 
         await markAlertTriggered(rule.id);

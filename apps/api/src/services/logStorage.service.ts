@@ -1,20 +1,23 @@
 import client from "../lib/elastic";
 import { LogSchema } from "../schemas/log.schema";
 
-function getIndexName(timestamp: string) {
-  const date = new Date(timestamp).toISOString().split("T")[0];
-  return `logs-${date}`;
+function getIndexName(date: Date) {
+  const day = date.toISOString().split("T")[0];
+  return `app-logs-${day}`;
 }
 
+
 export async function storeLog(log: LogSchema) {
-  const index = getIndexName(log.timestamp);
+      const now = new Date();
+  const index = getIndexName(now);
 
   try {
     await client.index({
       index,
       document: {
         ...log,
-        timestamp: new Date(log.timestamp),
+        level: log.level.toLowerCase(),
+        timestamp: now,
       },
     });
   } catch (err) {

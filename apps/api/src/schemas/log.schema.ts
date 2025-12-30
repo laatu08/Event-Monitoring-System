@@ -4,10 +4,7 @@ export const logSchema = z.object({
   service: z.string().min(1),
   level: z.enum(["debug", "info", "warn", "error", "fatal"]),
   message: z.string().min(1),
-  timestamp: z.string().refine(
-  (val) => !isNaN(Date.parse(val)),
-  { message: "Invalid timestamp format" }
-),
+  timestamp: z.string().datetime().optional(),
   meta: z.record(z.string(),z.any()).optional()
 });
 

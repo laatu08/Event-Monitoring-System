@@ -1,0 +1,14 @@
+import { Request, Response } from "express";
+import { getErrorTrends } from "../services/errorMetrics.service";
+
+export async function getErrorMetrics(req: Request, res: Response) {
+  const service = req.query.service as string;
+  const windowMinutes = Number(req.query.window || 15);
+
+  if (!service) {
+    return res.status(400).json({ error: "service is required" });
+  }
+
+  const data = await getErrorTrends(service, windowMinutes);
+  res.json(data);
+}

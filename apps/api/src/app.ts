@@ -1,6 +1,8 @@
 import express from "express";
 import cors from "cors";
 import logsRouter from "./routes/logs.routes";
+import metricsRouter from "./routes/metrics.routes";
+
 
 export function createApp() {
   const app = express();
@@ -8,6 +10,8 @@ export function createApp() {
   app.use(cors());
   app.use(express.json());
   app.use("/api/logs", logsRouter);
+  app.use("/api/metrics", metricsRouter);
+
 
   // health check
   app.get("/health", (_req, res) => {

@@ -10,16 +10,19 @@ export async function countLogs(
   ).toISOString();
 
   const result = await client.search({
-    index: "logs-*",
+    index: "app-logs-*",
     size: 0,
     query: {
       bool: {
         must: [
-          { term: { service } },
-          { term: { level } },
+          { term: { "service.keyword": service } },
+          { term: { "level.keyword": level } },
           {
             range: {
-              timestamp: { gte: from }
+              timestamp: {
+                gte: from,
+                lte: "now"
+              }
             }
           }
         ]
@@ -27,9 +30,7 @@ export async function countLogs(
     }
   });
 
-  return (
-    typeof result.hits.total === "number"
-      ? result.hits.total
-      : result.hits.total?.value || 0
-  );
+  return typeof result.hits.total === "number"
+    ? result.hits.total
+    : result.hits.total?.value || 0;
 }

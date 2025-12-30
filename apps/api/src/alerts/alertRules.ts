@@ -12,8 +12,8 @@ export const alertRules: AlertRule[] = [
     id: "auth-error-spike",
     service: "auth-service",
     level: "error",
-    threshold: 5,
-    windowMinutes: 5,
-    cooldownMinutes: 10
+    threshold: 3,
+    windowMinutes: 10,
+    cooldownMinutes: 1
   }
 ];

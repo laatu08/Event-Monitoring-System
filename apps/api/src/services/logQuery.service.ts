@@ -14,14 +14,22 @@ export async function queryLogs(query: LogQuery) {
     must.push({ term: { level } });
   }
 
+  if (service) {
+    must.push({ term: { "service.keyword": service } });
+  }
+
+  if (level) {
+    must.push({ term: { "level.keyword": level } });
+  }
+
   if (from || to) {
     must.push({
       range: {
         timestamp: {
           gte: from,
-          lte: to
-        }
-      }
+          lte: to,
+        },
+      },
     });
   }
 
@@ -31,14 +39,15 @@ export async function queryLogs(query: LogQuery) {
     size: limit,
     sort: [{ timestamp: { order: "desc" } }],
     query: {
-      bool: { must }
-    }
+      bool: { must },
+    },
   });
 
   return {
-    total: typeof result.hits.total === "number"
-      ? result.hits.total
-      : result.hits.total?.value || 0,
-    logs: result.hits.hits.map((hit) => hit._source)
+    total:
+      typeof result.hits.total === "number"
+        ? result.hits.total
+        : result.hits.total?.value || 0,
+    logs: result.hits.hits.map((hit) => hit._source),
   };
 }

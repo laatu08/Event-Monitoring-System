@@ -10,6 +10,10 @@ export async function evaluateAlerts() {
       rule.windowMinutes
     );
 
+    console.log(
+      `[ALERT DEBUG] service=${rule.service}, level=${rule.level}, count=${count}`
+    );
+
     if (count >= rule.threshold) {
       if (canTriggerAlert(rule.id, rule.cooldownMinutes)) {
         triggerAlert(rule, count);
@@ -18,6 +22,7 @@ export async function evaluateAlerts() {
     }
   }
 }
+
 
 function triggerAlert(rule: any, count: number) {
   console.error(

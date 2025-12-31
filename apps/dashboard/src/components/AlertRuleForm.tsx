@@ -6,64 +6,123 @@ export function AlertRuleForm({ onCreated }: { onCreated: () => void }) {
   const [threshold, setThreshold] = useState(5);
   const [windowMinutes, setWindowMinutes] = useState(10);
   const [cooldownMinutes, setCooldownMinutes] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
+    setIsSubmitting(true);
 
-    await createAlertRule({
-      service,
-      threshold,
-      windowMinutes,
-      cooldownMinutes
-    });
+    try {
+      await createAlertRule({
+        service,
+        threshold,
+        windowMinutes,
+        cooldownMinutes
+      });
 
-    onCreated();
+      onCreated();
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
     <form
       onSubmit={submit}
-      className="bg-white p-4 rounded shadow space-y-3"
+      className="bg-white rounded-xl shadow-sm p-6 space-y-6"
     >
-      <h3 className="font-semibold">Create Alert Rule</h3>
+      {/* Header */}
+      <div>
+        <p className="text-sm text-slate-500 mt-1">
+          Define when an incident should be triggered for a service.
+        </p>
+      </div>
 
-      <input
-        className="border p-2 rounded w-full"
-        value={service}
-        onChange={(e) => setService(e.target.value)}
-        placeholder="Service"
-      />
-
-      <div className="grid grid-cols-3 gap-2">
+      {/* Service */}
+      <div className="space-y-1">
+        <label className="text-sm font-medium text-slate-700">
+          Service name
+        </label>
         <input
-          type="number"
-          className="border p-2 rounded"
+          className="border rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-slate-900"
+          value={service}
+          onChange={(e) => setService(e.target.value)}
+          placeholder="e.g. auth-service"
+        />
+        <p className="text-xs text-slate-500">
+          Must match the service name used in logs
+        </p>
+      </div>
+
+      {/* Rule Parameters */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Field
+          label="Error threshold"
+          hint="Number of errors"
           value={threshold}
-          onChange={(e) => setThreshold(Number(e.target.value))}
-          placeholder="Threshold"
+          onChange={setThreshold}
         />
-        <input
-          type="number"
-          className="border p-2 rounded"
+
+        <Field
+          label="Time window"
+          hint="Minutes"
           value={windowMinutes}
-          onChange={(e) => setWindowMinutes(Number(e.target.value))}
-          placeholder="Window (min)"
+          onChange={setWindowMinutes}
         />
-        <input
-          type="number"
-          className="border p-2 rounded"
+
+        <Field
+          label="Cooldown"
+          hint="Minutes"
           value={cooldownMinutes}
-          onChange={(e) => setCooldownMinutes(Number(e.target.value))}
-          placeholder="Cooldown (min)"
+          onChange={setCooldownMinutes}
         />
       </div>
 
-      <button
-        className="bg-slate-900 text-white px-4 py-2 rounded"
-        type="submit"
-      >
-        Create
-      </button>
+      {/* Action */}
+      <div className="flex justify-end">
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="bg-slate-900 text-white px-5 py-2 rounded-md text-sm font-medium
+                     hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isSubmitting ? "Creating…" : "Create Alert Rule"}
+        </button>
+      </div>
     </form>
+  );
+}
+
+/* ---------- Small helper component ---------- */
+
+function Field({
+  label,
+  hint,
+  value,
+  onChange
+}: {
+  label: string;
+  hint: string;
+  value: number;
+  onChange: (v: number) => void;
+}) {
+  return (
+    <div className="space-y-1">
+      <label className="text-sm font-medium text-slate-700">
+        {label}
+      </label>
+      <div className="relative">
+        <input
+          type="number"
+          min={1}
+          className="border rounded px-3 py-2 w-full pr-12 focus:outline-none focus:ring-2 focus:ring-slate-900"
+          value={value}
+          onChange={(e) => onChange(Number(e.target.value))}
+        />
+        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-500">
+          {hint}
+        </span>
+      </div>
+    </div>
   );
 }

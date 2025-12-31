@@ -8,25 +8,54 @@ type Incident = {
 
 export function IncidentTable({ incidents }: { incidents: Incident[] }) {
   return (
-    <div className="bg-white rounded shadow">
+    <div className="bg-white rounded-xl shadow-sm overflow-x-auto">
       <table className="w-full text-sm">
-        <thead className="bg-slate-100 text-left">
-          <tr>
-            <th className="p-3">Time</th>
-            <th className="p-3">Service</th>
-            <th className="p-3">Errors</th>
-            <th className="p-3">Window</th>
+        <thead>
+          <tr className="bg-slate-100 text-slate-700">
+            <th className="px-4 py-3 text-center font-semibold">
+              Time
+            </th>
+            <th className="px-4 py-3 text-center font-semibold">
+              Service
+            </th>
+            <th className="px-4 py-3 text-center font-semibold">
+              Errors
+            </th>
+            <th className="px-4 py-3 text-center font-semibold">
+              Window
+            </th>
           </tr>
         </thead>
+
         <tbody>
           {incidents.map((i) => (
-            <tr key={i.id} className="border-t">
-              <td className="p-3">
+            <tr
+              key={i.id}
+              className="border-t hover:bg-slate-50 transition"
+            >
+              <td className="px-4 py-3 text-center font-mono text-slate-600">
                 {new Date(i.triggeredAt).toLocaleString()}
               </td>
-              <td className="p-3 font-medium">{i.service}</td>
-              <td className="p-3 text-red-600">{i.errorCount}</td>
-              <td className="p-3">{i.windowMinutes} min</td>
+
+              <td className="px-4 py-3 text-center font-medium text-slate-700">
+                {i.service}
+              </td>
+
+              <td className="px-4 py-3 text-center">
+                <span
+                  className={`px-2 py-1 rounded text-sm font-semibold ${
+                    i.errorCount >= 10
+                      ? "bg-red-100 text-red-700"
+                      : "bg-yellow-100 text-yellow-700"
+                  }`}
+                >
+                  {i.errorCount}
+                </span>
+              </td>
+
+              <td className="px-4 py-3 text-center text-slate-700">
+                {i.windowMinutes} min
+              </td>
             </tr>
           ))}
 
@@ -34,7 +63,7 @@ export function IncidentTable({ incidents }: { incidents: Incident[] }) {
             <tr>
               <td
                 colSpan={4}
-                className="p-6 text-center text-slate-500"
+                className="px-6 py-12 text-center text-slate-500"
               >
                 No incidents recorded
               </td>

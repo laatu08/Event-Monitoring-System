@@ -6,7 +6,7 @@ const api = axios.create({
 
 export async function fetchErrorMetrics(params: {
   service: string;
-  window: number;
+  range: string;
 }) {
   const res = await api.get("/metrics/errors", { params });
   return res.data; // [{ time, count }]

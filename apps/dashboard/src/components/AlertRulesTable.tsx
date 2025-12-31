@@ -9,26 +9,56 @@ export function AlertRulesTable({
   onChange: () => void;
 }) {
   return (
-    <div className="bg-white rounded shadow">
+    <div className="bg-white rounded-xl shadow-sm overflow-x-auto">
       <table className="w-full text-sm">
-        <thead className="bg-slate-100">
-          <tr>
-            <th className="p-3">Service</th>
-            <th className="p-3">Threshold</th>
-            <th className="p-3">Window</th>
-            <th className="p-3">Cooldown</th>
-            <th className="p-3">Enabled</th>
-            <th className="p-3"></th>
+        <thead>
+          <tr className="bg-slate-100 text-slate-700">
+            <th className="px-4 py-3 text-center font-semibold">
+              Service
+            </th>
+            <th className="px-4 py-3 text-center font-semibold">
+              Threshold
+            </th>
+            <th className="px-4 py-3 text-center font-semibold">
+              Window
+            </th>
+            <th className="px-4 py-3 text-center font-semibold">
+              Cooldown
+            </th>
+            <th className="px-4 py-3 text-center font-semibold">
+              Enabled
+            </th>
+            <th className="px-4 py-3 text-center font-semibold">
+              Actions
+            </th>
           </tr>
         </thead>
+
         <tbody>
           {rules.map((r) => (
-            <tr key={r.id} className="border-t">
-              <td className="p-3">{r.service}</td>
-              <td className="p-3">{r.threshold}</td>
-              <td className="p-3">{r.windowMinutes} min</td>
-              <td className="p-3">{r.cooldownMinutes} min</td>
-              <td className="p-3">
+            <tr
+              key={r.id}
+              className="border-t hover:bg-slate-50 transition"
+            >
+              <td className="px-4 py-3 text-center font-medium text-slate-700">
+                {r.service}
+              </td>
+
+              <td className="px-4 py-3 text-center">
+                <span className="px-2 py-1 rounded bg-slate-100 text-slate-700 font-semibold">
+                  {r.threshold}
+                </span>
+              </td>
+
+              <td className="px-4 py-3 text-center text-slate-700">
+                {r.windowMinutes} min
+              </td>
+
+              <td className="px-4 py-3 text-center text-slate-700">
+                {r.cooldownMinutes} min
+              </td>
+
+              <td className="px-4 py-3 flex justify-center">
                 <ToggleSwitch
                   enabled={r.enabled}
                   onChange={async (v) => {
@@ -37,12 +67,19 @@ export function AlertRulesTable({
                   }}
                 />
               </td>
-              <td className="p-3">
+
+              <td className="px-4 py-3 text-center">
                 <button
-                  className="text-red-600"
+                  className="text-red-600 text-sm hover:underline"
                   onClick={async () => {
-                    await deleteAlertRule(r.id);
-                    onChange();
+                    if (
+                      confirm(
+                        "Are you sure you want to delete this alert rule?"
+                      )
+                    ) {
+                      await deleteAlertRule(r.id);
+                      onChange();
+                    }
                   }}
                 >
                   Delete
@@ -53,8 +90,11 @@ export function AlertRulesTable({
 
           {rules.length === 0 && (
             <tr>
-              <td colSpan={6} className="p-6 text-center text-slate-500">
-                No alert rules
+              <td
+                colSpan={6}
+                className="px-6 py-12 text-center text-slate-500"
+              >
+                No alert rules configured
               </td>
             </tr>
           )}

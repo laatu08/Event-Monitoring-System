@@ -1,12 +1,63 @@
 import client from "../lib/elastic";
 
+function resolveRange(range: string) {
+  const now = new Date();
+  let from: Date;
+  let interval: string;
+
+  switch (range) {
+    case "1h":
+      from = new Date(now.getTime() - 60 * 60 * 1000);
+      interval = "1m";
+      break;
+
+    case "24h":
+      from = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+      interval = "5m";
+      break;
+
+    case "7d":
+      from = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      interval = "1h";
+      break;
+
+    case "30d":
+      from = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      interval = "6h";
+      break;
+
+    case "3m":
+      from = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+      interval = "1d";
+      break;
+
+    case "6m":
+      from = new Date(now.getTime() - 180 * 24 * 60 * 60 * 1000);
+      interval = "1d";
+      break;
+
+    case "1y":
+      from = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+      interval = "1w";
+      break;
+
+    default:
+      throw new Error("Invalid range");
+  }
+
+  return { from, interval };
+}
+
+
 export async function getErrorTrends(
   service: string,
-  windowMinutes: number
+  range: string
 ) {
-  const from = new Date(
-    Date.now() - windowMinutes * 60 * 1000
-  ).toISOString();
+  // const from = new Date(
+  //   Date.now() - windowMinutes * 60 * 1000
+  // ).toISOString();
+
+    const { from, interval } = resolveRange(range);
 
   const result = await client.search({
     index: "app-logs-*",
@@ -19,7 +70,7 @@ export async function getErrorTrends(
           {
             range: {
               timestamp: {
-                gte: from,
+                gte: from.toISOString(),
                 lte: "now"
               }
             }
@@ -31,7 +82,8 @@ export async function getErrorTrends(
       errors_over_time: {
         date_histogram: {
           field: "timestamp",
-          fixed_interval: "1m"
+          fixed_interval: interval,
+          min_doc_count:0
         }
       }
     }

@@ -29,6 +29,20 @@
       "when": 1767197824194,
       "tag": "0003_bored_blink",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1767201736197,
+      "tag": "0004_fixed_arachne",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1767204179095,
+      "tag": "0005_lovely_enchantress",
+      "breakpoints": true
     }
   ]
 }

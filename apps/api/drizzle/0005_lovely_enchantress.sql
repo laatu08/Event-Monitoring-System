@@ -1,0 +1,2 @@
+ALTER TABLE "alert_incidents" ADD COLUMN "last_seen_error_at" timestamp with time zone DEFAULT now() NOT NULL;--> statement-breakpoint
+CREATE INDEX "idx_alert_incidents_last_seen" ON "alert_incidents" USING btree ("last_seen_error_at");

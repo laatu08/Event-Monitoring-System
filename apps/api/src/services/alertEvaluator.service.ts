@@ -1,4 +1,4 @@
-import { recordIncident } from "../repositories/alertIncident.repo";
+import { getActiveIncidentForRule, recordIncident } from "../repositories/alertIncident.repo";
 import {
   getActiveAlertRules,
   markAlertTriggered
@@ -30,6 +30,15 @@ export async function evaluateAlerts() {
 
     if (totalErrors < rule.threshold) continue;
     if (!canTriggerAlert(rule)) continue;
+
+    const activeIncident = await getActiveIncidentForRule(rule.id);
+
+    if (activeIncident) {
+      console.log(
+        `[ALERT SKIPPED] Incident already ${activeIncident.status} for rule=${rule.id}`
+      );
+      continue;
+    }
 
     console.log(
       `🚨 ALERT: ${rule.service} had ${totalErrors} errors in ${rule.windowMinutes} minutes`

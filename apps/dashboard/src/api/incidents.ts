@@ -8,3 +8,11 @@ export async function fetchIncidents() {
   const res = await api.get("/alerts/incidents");
   return res.data;
 }
+
+export async function acknowledgeIncident(id: string) {
+  await api.post(`/alerts/incidents/${id}/acknowledge`);
+}
+
+export async function resolveIncident(id: string) {
+  await api.post(`/alerts/incidents/${id}/resolve`);
+}

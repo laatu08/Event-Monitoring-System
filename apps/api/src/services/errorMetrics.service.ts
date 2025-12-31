@@ -48,6 +48,38 @@ function resolveRange(range: string) {
   return { from, interval };
 }
 
+export async function countErrorsInWindow(
+  service: string,
+  windowMinutes: number
+): Promise<number> {
+  const from = new Date(
+    Date.now() - windowMinutes * 60 * 1000
+  ).toISOString();
+
+  const res = await client.search({
+    index: "app-logs-*",
+    size: 0,
+    query: {
+      bool: {
+        must: [
+          { term: { "service.keyword": service } },
+          { term: { "level.keyword": "error" } },
+          {
+            range: {
+              timestamp: {
+                gte: from
+              }
+            }
+          }
+        ]
+      }
+    }
+  });
+
+  return typeof res.hits.total === "number"
+    ? res.hits.total
+    : res.hits.total?.value || 0;
+}
 
 export async function getErrorTrends(
   service: string,
